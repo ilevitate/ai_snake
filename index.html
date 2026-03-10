@@ -1,28 +1,19 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <!-- 视口设置，确保在移动设备上正确显示 -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- 兼容IE/Edge的渲染模式设置 -->
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>贪吃蛇游戏</title>
-    <!-- 引入样式表 -->
-    <link rel="stylesheet" href="css/style.css">
-</head>
 <body>
     <!-- 游戏主容器 -->
     <div class="game-container">
-        <!-- 游戏标题 -->
-        <h1>🐍 贪吃蛇</h1>
-        
-        <!-- 计分板：显示当前得分和最高分 -->
-        <div class="score-board">
-            <span>得分: <strong id="score">0</strong></span>
-            <span>最高分: <strong id="highScore">0</strong></span>
+        <!-- 左侧：标题和计分板 -->
+        <div class="game-header">
+            <!-- 游戏标题 -->
+            <h1>🐍 贪吃蛇</h1>
+            
+            <!-- 计分板：显示当前得分和最高分 -->
+            <div class="score-board">
+                <span>得分: <strong id="score">0</strong></span>
+                <span>最高分: <strong id="highScore">0</strong></span>
+            </div>
         </div>
         
-        <!-- 画布包装器：包含游戏画布和提示文字 -->
+        <!-- 中间：画布 -->
         <div class="canvas-wrapper">
             <!-- 游戏画布：宽800像素，高450像素 -->
             <canvas id="gameCanvas" width="800" height="450"></canvas>
@@ -30,7 +21,7 @@
             <div class="mouse-hint" id="controlHint">🖱️ 移动鼠标控制蛇的方向</div>
         </div>
         
-        <!-- 控制区域：操作说明和按钮 -->
+        <!-- 右侧：控制区域 -->
         <div class="controls">
             <p id="controlText">移动鼠标控制蛇移动方向，空格键暂停</p>
             <button id="startBtn" type="button">开始游戏</button>
@@ -44,10 +35,3 @@
             <button id="restartBtn" type="button">重新开始</button>
         </div>
     </div>
-    
-    <!-- 引入JavaScript文件 -->
-    <script src="js/food.js"></script>   <!-- 食物类 -->
-    <script src="js/snake.js"></script>  <!-- 蛇类 -->
-    <script src="js/game.js"></script>   <!-- 游戏主逻辑 -->
-</body>
-</html>

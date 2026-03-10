@@ -137,6 +137,25 @@ class Game {
             const text = document.getElementById('controlText');
             if (hint) hint.textContent = '👆 触摸屏幕控制蛇的方向';
             if (text) text.textContent = '触摸屏幕控制蛇移动方向';
+            
+            // 移动端优化：降低蛇的初始速度，提升操控性
+            this.snake.speed = 3;
+            
+            // 禁用双击缩放
+            document.addEventListener('touchstart', function(e) {
+                if (e.touches.length > 1) {
+                    e.preventDefault();
+                }
+            }, {passive: false});
+            
+            let lastTouchEnd = 0;
+            document.addEventListener('touchend', function(e) {
+                const now = Date.now();
+                if (now - lastTouchEnd <= 300) {
+                    e.preventDefault();
+                }
+                lastTouchEnd = now;
+            }, {passive: false});
         }
     }
 
@@ -148,12 +167,16 @@ class Game {
         // 阻止默认行为
         e.preventDefault();
         
+        // 记录触摸起始位置
+        this.touchStartX = e.touches[0].clientX;
+        this.touchStartY = e.touches[0].clientY;
+        
         // 如果游戏未运行，开始游戏
         if (!this.isRunning) {
             this.start();
         }
         
-        // 处理触摸位置
+        // 立即处理触摸位置
         this.handleTouchMove(e);
     }
 
@@ -180,8 +203,6 @@ class Game {
      * @param {TouchEvent} e - 触摸事件对象
      */
     handleTouchMove(e) {
-        // 只有在游戏运行且未暂停时才响应
-        if (!this.isRunning || this.isPaused) return;
         // 阻止默认行为（防止页面滚动）
         e.preventDefault();
         
@@ -189,9 +210,13 @@ class Game {
         const rect = this.canvas.getBoundingClientRect();
         // 获取第一个触摸点
         const touch = e.touches[0];
-        // 计算触摸点在Canvas内的坐标
-        const x = touch.clientX - rect.left;
-        const y = touch.clientY - rect.top;
+        
+        // 计算触摸点在Canvas内的坐标（考虑Canvas缩放）
+        const scaleX = this.canvas.width / rect.width;
+        const scaleY = this.canvas.height / rect.height;
+        
+        const x = (touch.clientX - rect.left) * scaleX;
+        const y = (touch.clientY - rect.top) * scaleY;
         
         // 设置蛇的目标位置
         this.snake.setTarget(x, y);

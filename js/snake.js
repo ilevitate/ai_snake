@@ -31,7 +31,7 @@ class Snake {
         this.direction = 'right';      // 当前移动方向
         this.nextDirection = 'right';  // 下一帧的移动方向
         this.grow = false;             // 是否正在生长
-        this.speed = 5;                // 移动速度（像素/帧）
+        this.speed = 4;                // 移动速度（像素/帧）
         this.angle = 0;                // 当前朝向角度（弧度）
         // 高斯曲线相关参数（预留）
         this.controlPoints = [];       // 控制点数组
