@@ -1,0 +1,287 @@
+/**
+ * 贪吃蛇游戏 - 样式表
+ * 包含游戏界面、按钮、画布等元素的样式定义
+ */
+
+/* ===== 全局重置 ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    outline: none;  /* 移除焦点虚线框 */
+}
+
+/* ===== HTML和BODY重置 - 防止滚动条 ===== */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;  /* 强制隐藏滚动条 */
+}
+
+/* ===== 页面主体样式 ===== */
+body {
+    font-family: 'Microsoft YaHei', Arial, sans-serif;  /* 中文字体优先 */
+    background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);  /* 垂直渐变背景 */
+    display: flex;
+    justify-content: center;  /* 水平居中 */
+    align-items: center;      /* 垂直居中 */
+}
+
+/* ===== 游戏容器 ===== */
+.game-container {
+    text-align: center;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.95);  /* 半透明白色背景 */
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);  /* 阴影效果 */
+    max-height: 95vh;   /* 最大高度为视口高度的95% */
+    overflow: hidden;   /* 隐藏溢出内容 */
+}
+
+/* ===== 游戏标题 ===== */
+h1 {
+    color: #333;
+    margin-bottom: 5px;
+    font-size: 2em;  /* 减小字体 */
+}
+
+/* ===== 计分板 ===== */
+.score-board {
+    display: flex;
+    justify-content: center;
+    gap: 30px;  /* 分数项之间的间距 */
+    margin-bottom: 8px;  /* 减小间距 */
+    font-size: 1em;  /* 减小字体 */
+    color: #555;
+}
+
+.score-board strong {
+    color: #667eea;  /* 分数数字颜色 */
+    font-size: 1.2em;
+}
+
+/* ===== 画布包装器 ===== */
+.canvas-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+/* ===== 游戏画布 ===== */
+#gameCanvas {
+    border: 3px solid #333;
+    border-radius: 10px;
+    background: #111;
+    display: block;
+    margin: 0 auto;
+    /* 自定义鼠标光标：瞄准器样式 */
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='8' fill='%23ff6b6b' fill-opacity='0.8'/%3E%3Ccircle cx='12' cy='12' r='4' fill='white'/%3E%3Ccircle cx='12' cy='12' r='2' fill='%23ff6b6b'/%3E%3C/svg%3E") 12 12, auto;
+}
+
+/* ===== 鼠标提示文字 ===== */
+.mouse-hint {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);  /* 水平居中 */
+    background: rgba(0,0,0,0.6);
+    color: white;
+    padding: 5px 15px;
+    border-radius: 15px;
+    font-size: 0.85em;
+    pointer-events: none;  /* 不阻挡鼠标事件 */
+    opacity: 0.8;
+}
+
+/* ===== 控制区域 ===== */
+.controls {
+    margin-top: 8px;  /* 减小间距 */
+}
+
+.controls p {
+    color: #666;
+    margin-bottom: 8px;  /* 减小间距 */
+    font-size: 0.9em;  /* 减小字体 */
+}
+
+/* ===== 按钮通用样式 ===== */
+button {
+    padding: 10px 25px;  /* 减小按钮尺寸 */
+    margin: 0 8px;
+    font-size: 0.95em;  /* 减小字体 */
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;  /* 过渡动画 */
+}
+
+/* 开始按钮 */
+#startBtn {
+    background: #28a745;
+    color: white;
+}
+
+#startBtn:hover {
+    background: #218838;
+    transform: translateY(-2px);  /* 悬停上浮效果 */
+}
+
+#startBtn:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* 暂停按钮 */
+#pauseBtn {
+    background: #ffc107;
+    color: #333;
+}
+
+#pauseBtn:hover {
+    background: #e0a800;
+}
+
+/* ===== 游戏结束遮罩层 ===== */
+.game-over {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);  /* 半透明黑色背景 */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
+
+.game-over h2 {
+    font-size: 3em;
+    margin-bottom: 20px;
+    color: #ff6b6b;  /* 红色标题 */
+}
+
+.game-over p {
+    font-size: 1.5em;
+    margin-bottom: 30px;
+}
+
+/* 重新开始按钮 */
+#restartBtn {
+    background: #667eea;
+    color: white;
+    font-size: 1.2em;
+}
+
+#restartBtn:hover {
+    background: #764ba2;
+}
+
+/* ===== 工具类 ===== */
+.hidden {
+    display: none !important;  /* 强制隐藏 */
+}
+
+/* ===== 移动端适配 ===== */
+@media screen and (max-width: 850px) {
+    /* 游戏容器适配 */
+    .game-container {
+        padding: 10px;
+        border-radius: 15px;
+        width: 100%;
+        max-width: 100vw;
+    }
+    
+    /* 标题缩小 */
+    h1 {
+        font-size: 1.5em;
+        margin-bottom: 3px;
+    }
+    
+    /* 计分板缩小 */
+    .score-board {
+        gap: 20px;
+        margin-bottom: 5px;
+        font-size: 0.9em;
+    }
+    
+    .score-board strong {
+        font-size: 1.1em;
+    }
+    
+    /* 画布容器 */
+    .canvas-wrapper {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+    
+    /* 画布响应式 */
+    #gameCanvas {
+        max-width: 95vw;
+        height: auto;
+        /* 移动端使用默认光标 */
+        cursor: default;
+    }
+    
+    /* 提示文字缩小 */
+    .mouse-hint {
+        font-size: 0.75em;
+        padding: 3px 10px;
+        bottom: 5px;
+    }
+    
+    /* 控制区域缩小 */
+    .controls {
+        margin-top: 5px;
+    }
+    
+    .controls p {
+        font-size: 0.8em;
+        margin-bottom: 5px;
+    }
+    
+    /* 按钮缩小 */
+    button {
+        padding: 8px 18px;
+        font-size: 0.85em;
+        margin: 0 5px;
+    }
+    
+    /* 游戏结束界面适配 */
+    .game-over h2 {
+        font-size: 2em;
+    }
+    
+    .game-over p {
+        font-size: 1.2em;
+    }
+}
+
+/* ===== 小屏幕手机适配 ===== */
+@media screen and (max-width: 480px) {
+    h1 {
+        font-size: 1.3em;
+    }
+    
+    .score-board {
+        font-size: 0.8em;
+        gap: 15px;
+    }
+    
+    .controls p {
+        font-size: 0.75em;
+    }
+    
+    button {
+        padding: 6px 15px;
+        font-size: 0.8em;
+    }
+    
+    .mouse-hint {
+        font-size: 0.7em;
+    }
+}
