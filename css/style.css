@@ -499,3 +499,65 @@ button {
         display: none;  /* 横屏时隐藏原按钮，按钮显示在画布内 */
     }
 }
+
+/* ===== 全屏模式样式 ===== */
+/* 标准全屏API生效时的样式 */
+.game-container:fullscreen {
+    width: 100vw;
+    height: 100vh;
+    padding: 0;
+    border-radius: 0;
+}
+
+.game-container:-webkit-full-screen {
+    width: 100vw;
+    height: 100vh;
+    padding: 0;
+    border-radius: 0;
+}
+
+.game-container:-moz-full-screen {
+    width: 100vw;
+    height: 100vh;
+    padding: 0;
+    border-radius: 0;
+}
+
+/* 微信内置浏览器模拟全屏样式 */
+body.wechat-fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+body.wechat-fullscreen .game-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    padding: 0;
+    border-radius: 0;
+    z-index: 9999;
+}
+
+body.wechat-fullscreen .game-header,
+body.wechat-fullscreen .controls {
+    display: none;
+}
+
+body.wechat-fullscreen .canvas-wrapper {
+    width: 100%;
+    height: 100%;
+}
+
+body.wechat-fullscreen #gameCanvas {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+}
+
+

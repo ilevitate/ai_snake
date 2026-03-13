@@ -196,6 +196,13 @@ class Game {
             TRAIL_LENGTH: 8               // 拖尾长度
         },
         
+        // 全屏配置
+        FULLSCREEN: {
+            ENABLED: true,                // 是否启用全屏功能
+            AUTO_ENTER_ON_LANDSCAPE: true, // 横屏时自动进入全屏
+            LOCK_ORIENTATION: true        // 是否锁定横屏方向
+        },
+        
         // 音效配置
         AUDIO: {
             ENABLED: true,                // 默认开启音效
@@ -402,6 +409,145 @@ class Game {
         
         // 清理离屏渲染器
         this.offscreenRenderer.dispose();
+    }
+
+    // ========== 全屏和横屏锁定功能 ==========
+    
+    /**
+     * 进入全屏模式
+     * 尝试将游戏容器切换到全屏显示
+     * @returns {Promise<boolean>} 是否成功进入全屏
+     */
+    async enterFullscreen() {
+        const container = document.querySelector('.game-container');
+        if (!container) return false;
+        
+        try {
+            // 尝试各种全屏API前缀
+            const requestFullscreen = container.requestFullscreen || 
+                                     container.webkitRequestFullscreen || 
+                                     container.mozRequestFullScreen || 
+                                     container.msRequestFullscreen;
+            
+            if (requestFullscreen) {
+                await requestFullscreen.call(container);
+                return true;
+            }
+        } catch (e) {
+            console.warn('[Game] 进入全屏失败:', e);
+        }
+        return false;
+    }
+    
+    /**
+     * 退出全屏模式
+     * @returns {Promise<boolean>} 是否成功退出全屏
+     */
+    async exitFullscreen() {
+        try {
+            const exitFullscreen = document.exitFullscreen || 
+                                  document.webkitExitFullscreen || 
+                                  document.mozCancelFullScreen || 
+                                  document.msExitFullscreen;
+            
+            if (exitFullscreen && this.isFullscreen()) {
+                await exitFullscreen.call(document);
+                return true;
+            }
+        } catch (e) {
+            console.warn('[Game] 退出全屏失败:', e);
+        }
+        return false;
+    }
+    
+    /**
+     * 检查当前是否处于全屏状态
+     * @returns {boolean} 是否全屏
+     */
+    isFullscreen() {
+        return !!(document.fullscreenElement || 
+                  document.webkitFullscreenElement || 
+                  document.mozFullScreenElement || 
+                  document.msFullscreenElement);
+    }
+    
+    /**
+     * 锁定屏幕方向为横屏
+     * 使用 Screen Orientation API
+     * @returns {boolean} 是否成功锁定
+     */
+    lockLandscape() {
+        const cfg = Game.CONFIG.FULLSCREEN;
+        if (!cfg.LOCK_ORIENTATION) return false;
+        
+        try {
+            const screen = window.screen;
+            if (screen.orientation && screen.orientation.lock) {
+                screen.orientation.lock('landscape').catch(e => {
+                    console.warn('[Game] 锁定横屏失败:', e);
+                });
+                return true;
+            } else if (screen.lockOrientation) {
+                screen.lockOrientation('landscape');
+                return true;
+            } else if (screen.mozLockOrientation) {
+                screen.mozLockOrientation('landscape');
+                return true;
+            }
+        } catch (e) {
+            console.warn('[Game] 屏幕方向锁定不支持:', e);
+        }
+        return false;
+    }
+    
+    /**
+     * 解锁屏幕方向
+     */
+    unlockOrientation() {
+        try {
+            const screen = window.screen;
+            if (screen.orientation && screen.orientation.unlock) {
+                screen.orientation.unlock();
+            } else if (screen.unlockOrientation) {
+                screen.unlockOrientation();
+            } else if (screen.mozUnlockOrientation) {
+                screen.mozUnlockOrientation();
+            }
+        } catch (e) {
+            console.warn('[Game] 解锁屏幕方向失败:', e);
+        }
+    }
+    
+    /**
+     * 切换全屏状态
+     * 根据当前状态进入或退出全屏
+     */
+    async toggleFullscreen() {
+        if (this.isFullscreen()) {
+            await this.exitFullscreen();
+            this.unlockOrientation();
+        } else {
+            const success = await this.enterFullscreen();
+            if (success) {
+                this.lockLandscape();
+            }
+        }
+    }
+    
+    /**
+     * 检测是否为微信内置浏览器
+     * @returns {boolean} 是否在微信中
+     */
+    isWechat() {
+        return /MicroMessenger/i.test(navigator.userAgent);
+    }
+    
+    /**
+     * 检测是否为iOS设备
+     * @returns {boolean} 是否为iOS
+     */
+    isIOS() {
+        return /iPad|iPhone|iPod/i.test(navigator.userAgent) && !window.MSStream;
     }
 
     /**
@@ -1036,6 +1182,7 @@ class Game {
     /**
      * 开始游戏
      * 初始化游戏状态、重置蛇位置、生成食物、启动游戏循环
+     * 横屏模式下自动进入全屏以获得最佳游戏体验
      */
     start() {
         // 如果游戏已在运行，直接返回
@@ -1045,8 +1192,23 @@ class Game {
         const isLandscape = window.innerWidth > window.innerHeight;
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         
-        // 横屏模式下检查画布尺寸是否已正确设置（如果窗口大小发生变化则更新）
-        if (isLandscape && isMobile) {
+        // ========== 全屏模式处理 ==========
+        // 横屏移动设备自动进入全屏，获得最佳游戏体验
+        if (isLandscape && isMobile && Game.CONFIG.FULLSCREEN.AUTO_ENTER_ON_LANDSCAPE) {
+            // 尝试进入全屏并锁定横屏方向
+            this.enterFullscreen().then(success => {
+                if (success) {
+                    console.log('[Game] 已进入全屏模式');
+                    this.lockLandscape();
+                } else if (this.isWechat()) {
+                    // 微信内置浏览器可能不支持全屏API，提示用户
+                    console.log('[Game] 微信内置浏览器，尝试备用方案');
+                    // 微信下使用CSS模拟全屏效果
+                    document.body.classList.add('wechat-fullscreen');
+                }
+            });
+            
+            // 更新画布尺寸为全屏
             if (this.canvas.width !== window.innerWidth || this.canvas.height !== window.innerHeight) {
                 this.canvas.width = window.innerWidth;
                 this.canvas.height = window.innerHeight;
